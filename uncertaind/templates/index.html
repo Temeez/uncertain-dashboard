@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uncertain Dashboard</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pure-min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pure-min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/grids-responsive-min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/slippi.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+</head>
+<body>
+
+  <div class="pure-g">
+    {# Hard drives #}
+    <div class="pure-u-1 pure-u-sm-3-8 pure-u-xl-4-24 disk-container text-center">
+      <div class="pure-menu pure-menu-scrollable custom-restricted">
+        <div class="pure-menu-list">
+        {% for disk in disks %}
+          {% if disk.physical != prev and not loop.first %}
+          </div>
+          {% endif %}
+          {% if prev != disk.physical %}
+          <div class="harddisk">
+            <div class="title">
+              <a href="#{{ disk.physical }}" class="fill-parent" title="Show SMART data for {{ disk.physical }}">
+                <i class="fa fa-lg fa-hdd-o"></i> {{ disk.physical }}
+              </a>
+            </div>
+          {% endif %}
+            <div class="disk">
+              <div class="disk-title">{{ disk.mountpoint }}</div>
+              <div class="disk-holder">
+
+                <div class="pure-g">
+                  <div class="pure-u-3-4">
+                    <div>
+                      <span class="hide-sm">Total:</span> <strong>{{ disk.total|round(1, 'floor') }}</strong> GB
+                    </div>
+                    <div>
+                      <progress class="{% if disk.percent > 50 %}yellow{% elif disk.percent > 90 %}red{% else %}green{% endif %}" min="0" max="100" value="{{ disk.percent }}"></progress>
+                    </div>
+                    <div class="pure-g">
+                      <div class="pure-u-1-2 text-left">
+                        <span class="hide-sm">Used:</span> <strong>{{ disk.used|round(1, 'floor') }}</strong> GB
+                      </div>
+                      <div class="pure-u-1-2 text-right">
+                        <span class="hide-sm">Free:</span> <strong>{{ disk.free|round(1, 'floor') }}</strong> GB
+                      </div>
+                    </div>
+                  </div>
+                  <div class="pure-u-1-4 text-center">
+                    <!-- http://www.buildcomputers.net/hdd-temperature.html -->
+                    {% if disk.temperature != 0 %}
+                    <div class="disk-temperature flex-v {% if disk.temperature < 25 %}blue{% elif disk.temperature < 40 %}green{% elif disk.temperature < 45 %}yellow{% else %}red{% endif %}">
+                      <div class="flex-target text-center w100p">{{ disk.temperature }}°C</div>
+                    </div>
+                    {% else %}
+                    <div class="disk-temperature flex-v">
+                      <div class="flex-target text-center w100p">NaN</div>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          {% if loop.last %}
+          </div>
+          {% endif %}
+          {% set prev = disk.physical %}
+        {% endfor %}
+        </div>
+      </div>
+    </div>
+    {# Services #}
+    <div class="pure-u-1 pure-u-sm-5-8 pure-u-xl-7-24">
+      <div class="pure-menu pure-menu-scrollable custom-restricted">
+        <div class="pure-menu-list service-container">
+          <div class="title">
+            <h3 class="padding-v-10">Systemd Services <a href="#add-service" class="pull-right"><i class="fa fa-plus"></i></a></h3>
+          </div>
+        {% if not services %}
+          <div class="service-card flex-v">
+            <p class="text-center flex-target padding-v-50">No services added. Add them by clicking the red plus sign. The service you want to add must be loaded!</p>
+          </div>
+        {% else %}
+          {% for service in services %}
+          <div class="service-card">
+            <div class="service-status">
+              <div class="pure-g">
+                <div class="pure-u-18-24 text-left controls">
+                {% if service.ActiveState == "active" %}
+                  <a href="/stop/{{ service.service }}"><i type="submit" class="service-control fa fa-ban" title="Stop {{ service.service }}"></i></a>
+                {% else %}
+                  <a href="/start/{{ service.service }}"><i type="submit" class="service-control fa fa-play" title="Play {{ service.service }}"></i></a>
+                {% endif %}
+                  <a href="/restart/{{ service.service }}" class="margin-v-10"><i type="submit" class="service-control fa fa-refresh" title="Restart {{ service.service }}"></i></a>
+                  <a href="#{{ service.service }}" title="Show data for {{ service.service }}"><i class="service-control fa fa-file-text-o"></i></a>
+                </div>
+
+                <div class="pure-u-6-24">
+                {% if service.ActiveState == "active" %}
+                  <div class="active">{{ service.ActiveState|upper }}</div>
+                {% else %}
+                  <div class="inactive">{{ service.ActiveState|upper }}</div>
+                {% endif %}
+                </div>
+              </div>
+
+              <div class="substatus">{{ service.SubState|upper }}</div>
+
+              <div class="uptime">
+              {% if service.ActiveState == "active" %}
+                <div>{{ service.ActiveTime }}</div>
+              {% else %}
+                <div>{{ service.InactiveTime }}</div>
+              {% endif %}
+              </div>
+              
+            </div>
+            <div class="service-name"><a href="#edit-{{ service.service }}"><i class="fa fa-pencil"></i></a> {{ service.service|upper }}</div>
+
+          </div>
+          {% endfor %}
+        {% endif %}
+        </div>
+      </div>
+    </div>
+    {# Info #}
+    <div class="pure-u-1 pure-u-xl-13-24">
+      <div id="add-service" class="invisible info-container">
+        <div class="title">
+          <h3 class="padding-v-10"><a href="#" class="pull-left"><i class="fa fa-times"></i></a> Add a Service</h3>
+        </div>
+        <form method="post" action="/add">
+          <input type="text" name="service" placeholder="nginx.service" required />
+          <input type="text" name="log" placeholder="/var/log/nginx/error.log (optional)" />
+          <button type="submit">Add</button>
+        </form>
+      </div>
+    {% if smart %}
+      <div class="info-container">
+      {% for s in smart %}
+        <div class="invisible-container invisible" id="{{ s.device_id }}">
+          <div class="title">
+            <h3 class="padding-v-10"><a href="#" class="pull-left"><i class="fa fa-times"></i></a> SMART Info</h3>
+          </div>
+          <table>
+            <tr><td>Device:</td><td>{{ s.device_id }}</td></tr>
+            <tr><td>Family:</td><td>{{ s.family }}</td></tr>
+            <tr><td>Model:</td><td>{{ s.model }}</td></tr>
+            <tr><td>Serial:</td><td>{{ s.serial }}</td></tr>
+            <tr><td>Firmware Version:</td><td>{{ s.firmware_version }}</td></tr>
+            <tr><td>Capacity:</td><td>{{ s.capacity }}</td></tr>
+            <tr><td>Sector Sizes:</td><td>{{ s.sector_sizes }}</td></tr>
+            <tr><td>Rotation Rate:</td><td>{{ s.rotation_rate }}</td></tr>
+            <tr><td>Device Is:</td><td>{{ s.device_is }}</td></tr>
+            <tr><td>ATA Version:</td><td>{{ s.ata_version }}</td></tr>
+            <tr><td>SATA Version:</td><td>{{ s.sata_version }}</td></tr>
+            <tr><td>SMART Support Available:</td><td>{{ s.smart_support_available }}</td></tr>
+            <tr><td>SMART Support Enabled:</td><td>{{ s.smart_support_enabled }}</td></tr>
+          </table>
+        </div>
+      {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if services %}
+      <div class="info-container">
+      {% for service in services %}
+        <div class="info-container invisible" id="edit-{{ service.service }}">
+          <div class="title">
+            <h3 class="padding-v-10"><a href="#" class="pull-left"><i class="fa fa-times"></i></a> Edit the Service <a href="/remove/{{ service.service }}" class="pull-right"><i type="submit" class="service-control fa fa-trash-o margin-0" title="Remove {{ service.service }} from the list"></i></a></h3>  
+          </div>
+          <form method="post" action="/edit">
+            <input type="text" name="service" placeholder="nginx.service" value="{{ service.service }}" required />
+            <input type="text" name="log" placeholder="/var/log/nginx/error.log (optional)" value="{{ service.logfile }}" />
+            <button type="submit">Edit</button>
+          </form>
+        </div>
+        <div class="invisible-container invisible" id="{{ service.service }}">
+          <div class="title">
+            <h3 class="padding-v-10"><a href="#" class="pull-left"><i class="fa fa-times"></i></a> Service Info</h3>
+          </div>
+          <table>
+            <tr><td>Service:</td><td>{{ service.service }}</td></tr>
+            <tr><td>Id:</td><td>{{ service.Id }}</td></tr>
+            <tr><td>Description:</td><td>{{ service.Description }}</td></tr>
+            <tr><td>FragmentPath:</td><td>{{ service.FragmentPath }}</td></tr>
+            <tr><td>Log:</td><td>{{ service.logfile }}</td></tr>
+            <tr><td>LoadState:</td><td>{{ service.LoadState }}</td></tr>
+            <tr><td>ActiveState:</td><td>{{ service.ActiveState }}</td></tr>
+            <tr><td>SubState:</td><td>{{ service.SubState }}</td></tr>
+            <tr><td>ActiveTime:</td><td>{{ service.ActiveTime }}</td></tr>
+            <tr><td>InactiveTime:</td><td>{{ service.InactiveTime }}</td></tr>
+          </table>
+
+          <div class="service-log-container">
+            <div class="title">
+              <h3>Log</h3>
+            </div>
+            <div class="service-log">
+            {% if service.log %}
+              {% for l in service.log %}
+                <div>{{ l }}</div>
+              {% endfor %}
+            {% else %}
+              <div>Log is empty</div>
+            {% endif %}
+            </div>
+          </div>
+        </div>
+        <div>
+        </div>
+      {% endfor %}
+      </div>
+    {% endif %}
+    </div>
+  </div>
+
+</body>
+</html>

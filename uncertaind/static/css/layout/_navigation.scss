@@ -1,0 +1,36 @@
+nav {
+  &.services {
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        display: inline-block;
+
+        width: 120px;
+        height: 120px;
+        margin: 0 5px;
+
+        text-align: center;
+        font-size: 10px;
+        border: 1px solid;
+      }
+    }
+  }
+
+  &.pure-menu-horizontal {
+    background: #555;
+    ul {
+
+      li {
+        padding: 10px 16px;
+      }
+    }
+  }
+}
+
+.custom-restricted {
+  max-height: 100vh;
+  overflow-y: scroll;
+}
