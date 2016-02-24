@@ -47,7 +47,7 @@ manage-script-name = true
 mount = /%n=%(module):%(callable)
 ```
 
-# uncertain-dashboard.conf
+## uncertain-dashboard.conf
 ```
 server {
     listen 80;
@@ -64,6 +64,8 @@ server {
     location / {
         include uwsgi_params;
         uwsgi_pass unix:/var/run/uncertain-dashboard.sock;
+        auth_basic "Restricted Content";
+        auth_basic_user_file /etc/nginx/.htpasswd;
     }
 }
 ```
