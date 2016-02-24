@@ -5,7 +5,6 @@ Uncertain Dashboard is a simple, and potentially unsafe, dashboard made with Pyt
 ![Uncertain Dashboard screenshot](http://i.imgur.com/9XmhwGA.png "Uncertain Dashboard screenshot")
 
 # Installing
-------------
 ## Installation Requirements
  - `python` >= 3.3
  - `python3-dev`
@@ -23,7 +22,6 @@ python setup.py install
 Then setup nginx and [uWSGI](http://flask.pocoo.org/docs/0.10/deploying/uwsgi/) or what ever you prefer.
 
 # uWSGI and Nginx
-------------
 ## uncertain-dashboard.ini
 ```
 [uwsgi]
@@ -71,6 +69,5 @@ server {
 ```
 
 # Problems
-------------
 **ImportError: No module named dbus**
 : Install `python-dbus` for python 3 and make sure that the virtualenv can use the python-dbus system package `--system-site-packages`
