@@ -1220,7 +1220,7 @@ nav.pure-menu-horizontal {
     padding: 10px 16px; }
 
 .custom-restricted {
-  max-height: 100vh;
+  min-height: 100vh;
   overflow-y: scroll; }
 
 button {
@@ -1355,7 +1355,7 @@ a:hover {
 
 .service-container {
   font-size: 14px;
-  max-height: 100vh; }
+  min-height: 100vh; }
   .service-container .service-list {
     list-style-type: none;
     margin: 0; }
@@ -1431,18 +1431,22 @@ a:hover {
       border-top: 0;
       border-left: 0; }
 
+.smart-container {
+  height: auto; }
+
 .info-container {
   position: relative;
-  max-height: 100vh; }
-  .info-container .invisible-container {
-    font-size: 14px;
-    line-height: 18px;
-    background-color: #fff;
-    box-shadow: 2px 2px 2px #999;
-    padding-bottom: 5px; }
-    .info-container .invisible-container table {
-      margin: 10px; }
-      .info-container .invisible-container table tr td {
-        padding-right: 10px; }
+  min-height: 100vh; }
+
+.table-container {
+  font-size: 14px;
+  line-height: 18px;
+  background-color: #fff;
+  box-shadow: 2px 2px 2px #999;
+  padding-bottom: 5px; }
+  .table-container table {
+    margin: 10px; }
+    .table-container table tr td {
+      padding-right: 10px; }
 
 /*# sourceMappingURL=main.css.map */

@@ -142,9 +142,9 @@
         </form>
       </div>
     {% if smart %}
-      <div class="info-container">
+      <div class="smart-container">
       {% for s in smart %}
-        <div class="invisible-container invisible" id="{{ s.device_id }}">
+        <div class="table-container invisible" id="{{ s.device_id }}">
           <div class="title">
             <h3 class="padding-v-10"><a href="#" class="pull-left"><i class="fa fa-times"></i></a> SMART Info</h3>
           </div>
@@ -181,7 +181,7 @@
             <button type="submit">Edit</button>
           </form>
         </div>
-        <div class="invisible-container invisible" id="{{ service.service }}">
+        <div class="table-container invisible" id="{{ service.service }}">
           <div class="title">
             <h3 class="padding-v-10"><a href="#" class="pull-left"><i class="fa fa-times"></i></a> Service Info</h3>
           </div>
